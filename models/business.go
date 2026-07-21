@@ -6,7 +6,7 @@ type Business struct {
 	ID                  uint          `json:"id" gorm:"primaryKey;autoIncrement"`
 	NameEn              string        `json:"name_en" gorm:"unique" validate:"required"`
 	NameAr              string        `json:"name_ar" gorm:"unique" validate:"required"`
-	BusinessType        string        `gorm:"type:varchar(20);not null;check:business_type IN ('Premium','Basic')" json:"business_type"`
+	BusinessType        string        `gorm:"type:varchar(30);not null;check:business_type IN ('food_delivery','meal_subscription')" json:"business_type"`
 	Address             string        `json:"address"`
 	ContactInfo         string        `json:"contact_info"`
 	VATNo               string        `json:"vat_no" gorm:"unique" validate:"required"`
