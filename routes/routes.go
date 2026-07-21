@@ -16,6 +16,20 @@ func SetupRouter(masterDB *gorm.DB) *gin.Engine {
 	public := r.Group("/api")
 	{
 		public.POST("/login", middleware.StrictRateLimiterMiddleware(), func(c *gin.Context) { controllers.Login(c, masterDB) })
+		public.POST("/customer/register", middleware.StrictRateLimiterMiddleware(), func(c *gin.Context) { controllers.RegisterCustomer(c, masterDB) })
+		public.POST("/customer/login", middleware.StrictRateLimiterMiddleware(), func(c *gin.Context) { controllers.LoginCustomer(c, masterDB) })
+	}
+
+	customerAuth := r.Group("/api/customer")
+	customerAuth.Use(middleware.CustomerJWTAuth(masterDB))
+	customerAuth.Use(middleware.RateLimiterMiddleware())
+	{
+		customerAuth.GET("/me", func(c *gin.Context) { controllers.GetCustomerProfile(c, masterDB) })
+		customerAuth.PUT("/me", func(c *gin.Context) { controllers.UpdateCustomerProfile(c, masterDB) })
+		customerAuth.GET("/addresses", func(c *gin.Context) { controllers.GetMyCustomerAddresses(c, masterDB) })
+		customerAuth.POST("/addresses", func(c *gin.Context) { controllers.CreateMyCustomerAddress(c, masterDB) })
+		customerAuth.PUT("/addresses/:address_id", func(c *gin.Context) { controllers.UpdateMyCustomerAddress(c, masterDB) })
+		customerAuth.DELETE("/addresses/:address_id", func(c *gin.Context) { controllers.DeleteMyCustomerAddress(c, masterDB) })
 	}
 
 	auth := r.Group("/api")
@@ -69,6 +83,26 @@ func SetupRouter(masterDB *gorm.DB) *gin.Engine {
 			permissionRoutes.GET("/:id", middleware.RolePermissionMiddleware("role", "get", masterDB), func(c *gin.Context) { controllers.GetPermissionByID(c, masterDB) })
 			permissionRoutes.PUT("/:id", middleware.RolePermissionMiddleware("role", "update", masterDB), func(c *gin.Context) { controllers.UpdatePermission(c, masterDB) })
 			permissionRoutes.DELETE("/:id", middleware.RolePermissionMiddleware("role", "delete", masterDB), func(c *gin.Context) { controllers.DeletePermission(c, masterDB) })
+		}
+
+		customerRoutes := auth.Group("/customers")
+		{
+			customerRoutes.POST("", middleware.RolePermissionMiddleware("customer", "create", masterDB), func(c *gin.Context) { controllers.CreateCustomer(c, masterDB) })
+			customerRoutes.GET("", middleware.RolePermissionMiddleware("customer", "get", masterDB), func(c *gin.Context) { controllers.GetAllCustomers(c, masterDB) })
+			customerRoutes.GET("/:id", middleware.RolePermissionMiddleware("customer", "get", masterDB), func(c *gin.Context) { controllers.GetCustomerByID(c, masterDB) })
+			customerRoutes.PUT("/:id", middleware.RolePermissionMiddleware("customer", "update", masterDB), func(c *gin.Context) { controllers.UpdateCustomer(c, masterDB) })
+			customerRoutes.PATCH("/:id/status", middleware.RolePermissionMiddleware("customer", "update", masterDB), func(c *gin.Context) { controllers.UpdateCustomerStatus(c, masterDB) })
+			customerRoutes.POST("/:id/set-password", middleware.RolePermissionMiddleware("customer", "update", masterDB), func(c *gin.Context) { controllers.SetCustomerPassword(c, masterDB) })
+			customerRoutes.DELETE("/:id", middleware.RolePermissionMiddleware("customer", "delete", masterDB), func(c *gin.Context) { controllers.DeleteCustomer(c, masterDB) })
+			customerRoutes.POST("/:id/addresses", middleware.RolePermissionMiddleware("customer_address", "create", masterDB), func(c *gin.Context) { controllers.CreateCustomerAddress(c, masterDB) })
+			customerRoutes.GET("/:id/addresses", middleware.RolePermissionMiddleware("customer_address", "get", masterDB), func(c *gin.Context) { controllers.GetCustomerAddresses(c, masterDB) })
+			customerRoutes.PUT("/:id/addresses/:address_id", middleware.RolePermissionMiddleware("customer_address", "update", masterDB), func(c *gin.Context) { controllers.UpdateCustomerAddress(c, masterDB) })
+			customerRoutes.DELETE("/:id/addresses/:address_id", middleware.RolePermissionMiddleware("customer_address", "delete", masterDB), func(c *gin.Context) { controllers.DeleteCustomerAddress(c, masterDB) })
+		}
+
+		nutriSunRoutes := auth.Group("/nutrisun")
+		{
+			nutriSunRoutes.POST("/bootstrap-modules", middleware.RolePermissionMiddleware("role", "update", masterDB), func(c *gin.Context) { controllers.BootstrapNutriSunModules(c, masterDB) })
 		}
 	}
 	return r

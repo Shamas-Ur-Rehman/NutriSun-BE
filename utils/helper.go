@@ -150,7 +150,7 @@ func GetDefaultTenantDBName() string {
 	if name := firstNonEmptyEnv("TENANT_DB_NAME", "DB_NAME"); name != "" {
 		return name
 	}
-	return "fms_master_db"
+	return "nutrisun_tenant"
 }
 
 func firstNonEmptyEnv(keys ...string) string {

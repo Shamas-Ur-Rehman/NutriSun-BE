@@ -58,7 +58,16 @@ func AutoMigrateTenantDB(db *gorm.DB) error {
 		return fmt.Errorf("enable pgcrypto: %w", err)
 	}
 
-	if err := db.AutoMigrate(); err != nil {
+	if err := db.AutoMigrate(
+		&models.Customer{},
+		&models.CustomerAddress{},
+		&models.MenuMonth{},
+		&models.MenuDay{},
+		&models.MenuDayItem{},
+		&models.SubscriptionPlan{},
+		&models.CustomerSubscription{},
+		&models.CustomerSubscriptionDay{},
+	); err != nil {
 		return fmt.Errorf("auto-migrate tenant schema: %w", err)
 	}
 

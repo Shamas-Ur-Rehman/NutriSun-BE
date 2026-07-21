@@ -90,7 +90,7 @@ func CreateUser(c *gin.Context, masterDB *gorm.DB) {
 		Contact:     req.Contact,
 		Gender:      req.Gender,
 		RoleID:      req.RoleID,
-		Service:     "fms",
+		Service:     "nutrisun",
 		Address:     req.Address,
 		Nationality: req.Nationality,
 		DocumentId:  req.DocumentId,
