@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     id BIGSERIAL PRIMARY KEY,
     name_en VARCHAR(255) NOT NULL,
     name_ar VARCHAR(255) NOT NULL,
-    business_type VARCHAR(20) NOT NULL CHECK (business_type IN ('clinic', 'polyclinic', 'hospital')),
+    business_type VARCHAR(30) NOT NULL CHECK (business_type IN ('food_delivery', 'meal_subscription')),
     address TEXT NOT NULL DEFAULT '',
     contact_info TEXT NOT NULL DEFAULT '',
     vat_no VARCHAR(100) NOT NULL,
@@ -156,10 +156,10 @@ INSERT INTO businesses (
     longitude, license_no, email, registration_no, privacy_policy, db, created_at, updated_at
 )
 VALUES (
-    1, 'Acme Hospital', 'Acme Hospital AR', 'hospital', 'Riyadh, Saudi Arabia', '+966500000000',
-    'VAT-ACME-001', 'CR-ACME-001', 'Riyadh', '2026-01-01', '', '', '',
-    'rcm@acmehospital.com', 'change-me', '', '', 'LIC-ACME-001', 'admin@acmehospital.com',
-    'REG-ACME-001', '', 'acme_hospital_tenant', NOW(), NOW()
+    1, 'NutriSun', 'NutriSun', 'food_delivery', 'Lahore, Pakistan', '+92-300-0000000',
+    'VAT-NUTRISUN-001', 'CR-NUTRISUN-001', 'Lahore', '2026-07-20', '', '', '',
+    '', '', '', '', 'LIC-NUTRISUN-001', 'admin@nutrisun.com',
+    'REG-NUTRISUN-001', '', 'nutrisun_tenant', NOW(), NOW()
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -167,7 +167,7 @@ INSERT INTO branches (
     id, name_en, name_ar, business_id, created_at, updated_at
 )
 VALUES (
-    1, 'Main Branch', 'Main Branch AR', 1, NOW(), NOW()
+    1, 'Main Branch', 'Main Branch', 1, NOW(), NOW()
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -175,7 +175,7 @@ INSERT INTO subscriptions (
     id, business_id, api_key, secret_key, branch_id, expiry_date, status, created_at, updated_at
 )
 VALUES (
-    1, 1, 'acme-master-api-key', 'acme-master-secret', 1, NOW() + INTERVAL '365 days', 'active', NOW(), NOW()
+    1, 1, 'nutrisun-master-api-key', 'nutrisun-master-secret', 1, NOW() + INTERVAL '365 days', 'active', NOW(), NOW()
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -187,14 +187,11 @@ INSERT INTO modules (id, name, display_name, description, business_id, branch_id
 VALUES
     (1, 'role', 'Role Management', 'Manage roles, permissions, and modules', 1, 1, NOW(), NOW()),
     (2, 'user', 'User Management', 'Manage tenant users from master identity records', 1, 1, NOW(), NOW()),
-    (3, 'asset', 'Asset Management', 'Manage healthcare facility assets and calibration lifecycle', 1, 1, NOW(), NOW()),
-    (4, 'maintenance', 'Maintenance Management', 'Manage maintenance work orders, schedules, and dashboards', 1, 1, NOW(), NOW()),
-    (5, 'facility_operations', 'Facility Operations', 'Manage housekeeping workflows and waste disposal records', 1, 1, NOW(), NOW()),
-    (6, 'space_bed_management', 'Space & Bed Management', 'Manage rooms, beds, and real-time capacity status', 1, 1, NOW(), NOW()),
-    (7, 'vendor_contract', 'Vendor & Contract Management', 'Manage vendors, contracts, and SLA performance reporting', 1, 1, NOW(), NOW()),
-    (8, 'utilities_management', 'Utilities Management', 'Manage utility readings, generator testing, and consumption analytics', 1, 1, NOW(), NOW()),
-    (9, 'safety_compliance', 'Safety & Compliance', 'Manage incidents, risk assessments, and CBAHI reporting', 1, 1, NOW(), NOW()),
-    (10, 'inventory_management', 'Inventory Management', 'Manage spare parts inventory, stock adjustments, and low-stock alerts', 1, 1, NOW(), NOW())
+    (3, 'customer', 'Customer Management', 'Manage NutriSun customers', 1, 1, NOW(), NOW()),
+    (4, 'customer_address', 'Customer Address Management', 'Manage NutriSun customer addresses', 1, 1, NOW(), NOW()),
+    (5, 'subscription_plan', 'Subscription Plan Management', 'Manage NutriSun subscription plans', 1, 1, NOW(), NOW()),
+    (6, 'menu', 'Menu Management', 'Manage NutriSun monthly menus', 1, 1, NOW(), NOW()),
+    (7, 'customer_subscription', 'Customer Subscription Management', 'Manage NutriSun customer subscriptions', 1, 1, NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO permissions (role_id, module_id, action, business_id, branch_id, created_at, updated_at)
@@ -227,18 +224,26 @@ VALUES
     (1, 7, 'create', 1, 1, NOW(), NOW()),
     (1, 7, 'update', 1, 1, NOW(), NOW()),
     (1, 7, 'delete', 1, 1, NOW(), NOW()),
-    (1, 8, 'get', 1, 1, NOW(), NOW()),
-    (1, 8, 'create', 1, 1, NOW(), NOW()),
-    (1, 8, 'update', 1, 1, NOW(), NOW()),
-    (1, 8, 'delete', 1, 1, NOW(), NOW()),
-    (1, 9, 'get', 1, 1, NOW(), NOW()),
-    (1, 9, 'create', 1, 1, NOW(), NOW()),
-    (1, 9, 'update', 1, 1, NOW(), NOW()),
-    (1, 9, 'delete', 1, 1, NOW(), NOW()),
-    (1, 10, 'get', 1, 1, NOW(), NOW()),
-    (1, 10, 'create', 1, 1, NOW(), NOW()),
-    (1, 10, 'update', 1, 1, NOW(), NOW()),
-    (1, 10, 'delete', 1, 1, NOW(), NOW())
+    (1, 3, 'get', 1, 1, NOW(), NOW()),
+    (1, 3, 'create', 1, 1, NOW(), NOW()),
+    (1, 3, 'update', 1, 1, NOW(), NOW()),
+    (1, 3, 'delete', 1, 1, NOW(), NOW()),
+    (1, 4, 'get', 1, 1, NOW(), NOW()),
+    (1, 4, 'create', 1, 1, NOW(), NOW()),
+    (1, 4, 'update', 1, 1, NOW(), NOW()),
+    (1, 4, 'delete', 1, 1, NOW(), NOW()),
+    (1, 5, 'get', 1, 1, NOW(), NOW()),
+    (1, 5, 'create', 1, 1, NOW(), NOW()),
+    (1, 5, 'update', 1, 1, NOW(), NOW()),
+    (1, 5, 'delete', 1, 1, NOW(), NOW()),
+    (1, 6, 'get', 1, 1, NOW(), NOW()),
+    (1, 6, 'create', 1, 1, NOW(), NOW()),
+    (1, 6, 'update', 1, 1, NOW(), NOW()),
+    (1, 6, 'delete', 1, 1, NOW(), NOW()),
+    (1, 7, 'get', 1, 1, NOW(), NOW()),
+    (1, 7, 'create', 1, 1, NOW(), NOW()),
+    (1, 7, 'update', 1, 1, NOW(), NOW()),
+    (1, 7, 'delete', 1, 1, NOW(), NOW())
 ON CONFLICT (role_id, module_id, action) DO NOTHING;
 
 INSERT INTO users (
@@ -247,10 +252,10 @@ INSERT INTO users (
     business_id, branch_id, created_at, updated_at
 )
 VALUES (
-    1, 'System Administrator', 'admin@acmehospital.com',
+    1, 'NutriSun Admin', 'admin@nutrisun.com',
     '$2a$10$qvSQkI5lY5JEyxkS.jqKQu4f/xgFPaOC65P/Jsy4Ohsx8bYTaFgOC',
-    'IPEMP0001', '+966500000000', 'male', 1, TRUE, FALSE, 'fms',
-    'Riyadh, Saudi Arabia', 'Saudi', 'DOC-ADMIN-001', '', '', '', '',
+    'NSEMP0001', '+92-300-0000000', 'male', 1, TRUE, TRUE, 'nutrisun',
+    'Lahore, Pakistan', 'Pakistani', 'DOC-ADMIN-001', '', '', '', '',
     1, 1, NOW(), NOW()
 )
 ON CONFLICT (id) DO NOTHING;

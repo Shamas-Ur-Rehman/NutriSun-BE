@@ -10,11 +10,13 @@ import (
 )
 
 type JWTClaims struct {
-	UserID  uint   `json:"user_id"`
-	Email   string `json:"email"`
-	RoleID  uint   `json:"role_id"`
-	DbName  string `json:"db_name"`
-	Service string `json:"service"`
+	UserID     uint   `json:"user_id"`
+	Email      string `json:"email"`
+	RoleID     uint   `json:"role_id"`
+	DbName     string `json:"db_name"`
+	Service    string `json:"service"`
+	BusinessID uint   `json:"business_id"`
+	BranchID   uint   `json:"branch_id"`
 	jwt.RegisteredClaims
 }
 
@@ -25,6 +27,30 @@ func GenerateJWT(userID, roleID uint, email, dbName string, service string) (str
 		RoleID:  roleID,
 		DbName:  dbName,
 		Service: service,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(12 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
+		secretKey = "your-secret-key"
+	}
+
+	return token.SignedString([]byte(secretKey))
+}
+
+func GenerateScopedJWT(userID, roleID, businessID, branchID uint, email, dbName string, service string) (string, error) {
+	claims := &JWTClaims{
+		UserID:     userID,
+		Email:      email,
+		RoleID:     roleID,
+		DbName:     dbName,
+		Service:    service,
+		BusinessID: businessID,
+		BranchID:   branchID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(12 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
